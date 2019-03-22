@@ -1,0 +1,51 @@
+﻿@page "/todo"
+@inject TodoState state
+@using UndoExample.Models
+
+<h1>Todo (@state.Count())</h1>
+
+<section class="row">
+    <div class="col-sm-6">
+        <EditForm Model="@newTodo" OnValidSubmit="@AddTodo">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <input placeholder="Something todo" class="form-control form-control-lg" bind="@newTodo.Title" />
+                <ValidationMessage For="@(()=> newTodo.Title)" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add todo</button>
+            <button type="button" class="btn btn-outline-danger"
+                    disabled="@(!state.Current.Any(todo => todo.IsDone))"
+                    onclick="@state.ClearFinished">
+                Clear Finished
+            </button>
+            <button type="button" class="btn btn-outline-secondary"
+                    disabled=@(!state.CanUndo())
+                    onclick="@state.Undo">
+                Undo
+            </button>
+        </EditForm>
+    </div>
+    <div class="col-sm-12">
+        <ul class="list-group">
+            @foreach (var item in state.Current)
+            {
+                <li class="list-group-item">
+                    <input type="checkbox" bind="@item.IsDone" />
+                    <span>@item.Title</span>
+                </li>
+            }
+        </ul>
+    </div>
+</section>
+
+@functions {
+    TodoItem newTodo = new TodoItem();
+
+    void AddTodo()
+    {
+        state.AddTodo(newTodo);
+        newTodo = new TodoItem();
+    }
+
+}
